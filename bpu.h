@@ -8,6 +8,7 @@ class Statistics{
   uint64_t misprediction;
   long double mp_rate;
 public:
+  Statistics();
   void output_stats();
   void finalise_stats();
   void incb();
@@ -22,8 +23,9 @@ class BPU{
   uint64_t BHR;
 
 public:
+  Statistics stat;
   BPU(uint64_t _m, uint64_t _n);
   void predict_branch(uint32_t address, char true_direction);
-
+  void dump_contents();
 };
 #endif
