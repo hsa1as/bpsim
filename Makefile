@@ -2,12 +2,13 @@ CC = g++
 OPT = -O3
 WARN = -Wall
 CFLAGS = $(OPT) $(WARN) $(INC) $(LIB)
-
+OP_DIR = outputs
+REF_DIR = val_outputs
 # List all your .cc files here (source files, excluding header files)
-SIM_SRC = branch_predictor.cpp
+SIM_SRC = main.cc bpu.cc 
 
 # List corresponding compiled object files here (.o files)
-SIM_OBJ = branch_predictor.o
+SIM_OBJ = main.o bpu.o
  
 #################################
 
@@ -34,6 +35,7 @@ bpsim: $(SIM_OBJ)
 
 clean:
 	rm -f *.o bpsim
+	rm -rf ./$(OP_DIR)
 
 
 # type "make clobber" to remove all .o files (leaves bpsim binary)
@@ -42,3 +44,28 @@ clobber:
 	rm -f *.o
 
 
+run: all
+	-rm -rf ./$(OP_DIR)
+	mkdir ./$(OP_DIR)
+	./bpsim bimodal 6 gcc_trace.txt >| ./$(OP_DIR)/bimodal_gcc_val0.txt
+	./bpsim bimodal 12 gcc_trace.txt >| ./$(OP_DIR)/bimodal_gcc_val1.txt
+	./bpsim bimodal 4 jpeg_trace.txt >| ./$(OP_DIR)/bimodal_jpeg_val2.txt
+	./bpsim gshare 9 3 gcc_trace.txt >| ./$(OP_DIR)/gshare_gcc_val0.txt
+	./bpsim gshare 14 8 gcc_trace.txt >| ./$(OP_DIR)/gshare_gcc_val1.txt
+	./bpsim gshare 11 5 jpeg_trace.txt >| ./$(OP_DIR)/gshare_jpeg_val2.txt
+
+	
+diff: run  
+	-diff -iw ./$(OP_DIR)/bimodal_gcc_val0.txt ./$(REF_DIR)/bimodal_gcc_val0.txt || true;
+	-diff -iw ./$(OP_DIR)/bimodal_gcc_val1.txt ./$(REF_DIR)/bimodal_gcc_val1.txt || true;
+	-diff -iw ./$(OP_DIR)/bimodal_jpeg_val2.txt ./$(REF_DIR)/bimodal_jpeg_val2.txt || true;
+	-diff -iw ./$(OP_DIR)/gshare_gcc_val0.txt ./$(REF_DIR)/gshare_gcc_val0.txt || true;
+	-diff -iw ./$(OP_DIR)/gshare_gcc_val1.txt ./$(REF_DIR)/gshare_gcc_val1.txt || true;
+	-diff -iw ./$(OP_DIR)/gshare_jpeg_val2.txt ./$(REF_DIR)/gshare_jpeg_val2.txt || true;
+
+
+
+
+
+
+	

@@ -6,7 +6,7 @@ BPU::BPU(uint64_t _m, uint64_t _n): m(_m), n(_n) {
   // BHR is 0 initially
   this->BHR = 0;
   // Counters initialised to weakly taken
-  for(ll i = 0; i < (1<<m); i++){
+  for(ll i = 0; i < (1<<this->m); i++){
     this->counters.push_back(2);
   }
 }
@@ -19,8 +19,9 @@ void BPU::predict_branch(uint32_t pc, char true_direction){
   uint32_t index = pc >> 2;
   // XOR with BHR if n != 0
   if(n != 0){
-    index = index ^ ((this->BHR << (this->m - this-> n)));
+    index = index ^ ((this->BHR << (this->m - this->n)));
   }
+  index = index & ((1<<this->m) - 1);
 
   // predict step
   uint8_t prediction = this->counters[index];
@@ -54,18 +55,7 @@ void BPU::predict_branch(uint32_t pc, char true_direction){
     }
   }
   // update BHR
-  if(true_direction == 't'){
-    // +1 if not max
-    if(this->BHR != ((1<<(n)) - 1)){
-      this->BHR = (this->BHR + 1) & ((1<<(n)) - 1);
-    }
-  }else{
-    // -1 if not 0
-    if(this->BHR != 0){
-      this->BHR = (this->BHR - 1) & ((1<<(n)) - 1);
-    }
-
-  }
+  this->BHR = ((this->BHR >> 1) + ((true_direction == 't') << (this->n - 1))) & ((1<<(this->n)) - 1);
 
 }
 
@@ -74,8 +64,8 @@ void BPU::dump_contents(){
   if(this->n != 0) std::cout<<"GSHARE CONTENTS";
   else std::cout<<"BIMODAL CONTENTS";
   std::cout<<std::endl;
-  for(ll i = 0; i < (1<<this->n); i++){
-    std::cout<<i<<" "<<this->counters[i]<<std::endl;
+  for(ll i = 0; i < (1<<this->m); i++){
+    std::cout<<i<<" "<<(int)(this->counters[i])<<std::endl;
   }
 }
 
@@ -102,5 +92,5 @@ void Statistics::output_stats(){
   std::cout<<std::fixed<<std::setprecision(2);
   std::cout<<"number of predictions: "<<this->branches<<std::endl;
   std::cout<<"number of mispredictions: "<<this->misprediction<<std::endl;
-  std::cout<<"misprediction rate: "<<this->mp_rate<<"%"<<std::endl;
+  std::cout<<"misprediction rate: "<<this->mp_rate*100<<"%"<<std::endl;
 }

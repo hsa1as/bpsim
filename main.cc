@@ -7,7 +7,7 @@
 using namespace std;
 using ll = long long;
 
-void start_sim(string filename, ll n, ll m){
+void start_sim(string filename, ll m, ll n){
   BPU bpu = BPU(m,n);
   ifstream instream(filename);
   string direction;
@@ -23,7 +23,12 @@ void start_sim(string filename, ll n, ll m){
 }
 
 int main(int argc, char **argv){
- 
+  // Output configuration
+  cout<<"COMMAND"<<endl;
+  for(int i = 0; i < argc; i++){
+    cout<<argv[i]<<" ";
+  }
+  cout<<endl;
   ll m,n;
   string filename;
   // Check predictor type:
@@ -31,20 +36,16 @@ int main(int argc, char **argv){
   if(argc == 4){
     m = stoi(argv[2]);
     n = 0;
-    filename = stoi(argv[3]);
+    filename = argv[3];
   }else if (argc == 5){
     m = stoi(argv[2]);
     n = stoi(argv[3]);
-    filename = stoi(argv[4]);
+    filename = argv[4];
   }else{
     cout<<"Wrong number of arguments specified";
     exit(1);
   }
-  // Output configuration
-  cout<<"COMMAND"<<endl;
-  for(int i = 0; i < argc; i++){
-    cout<<argv[i]<<" ";
-  }
+
   start_sim(filename, m, n);
   return 0; 
   
